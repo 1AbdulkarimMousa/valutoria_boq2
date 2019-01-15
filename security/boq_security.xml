@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Module Category -->
+    <record id="module_category_boq" model="ir.module.category">
+        <field name="name">BOQ - Bill of Quantities</field>
+        <field name="description">Manage construction Bills of Quantities</field>
+        <field name="sequence">15</field>
+    </record>
+
+    <!-- BOQ User Group -->
+    <record id="group_boq_user" model="res.groups">
+        <field name="name">BOQ User</field>
+        <field name="category_id" ref="module_category_boq"/>
+        <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
+    </record>
+
+    <!-- BOQ Manager Group -->
+    <record id="group_boq_manager" model="res.groups">
+        <field name="name">BOQ Manager</field>
+        <field name="category_id" ref="module_category_boq"/>
+        <field name="implied_ids" eval="[(4, ref('group_boq_user'))]"/>
+    </record>
+
+    <!-- Multi-company Rules -->
+    <record id="boq_project_company_rule" model="ir.rule">
+        <field name="name">BOQ Project: multi-company</field>
+        <field name="model_id" ref="model_boq_project"/>
+        <field name="domain_force">
+            ['|', ('company_id', '=', False), ('company_id', 'in', company_ids)]
+        </field>
+        <field name="global" eval="True"/>
+    </record>
+
+    <record id="boq_activity_company_rule" model="ir.rule">
+        <field name="name">BOQ Activity: multi-company</field>
+        <field name="model_id" ref="model_boq_activity"/>
+        <field name="domain_force">
+            ['|', ('company_id', '=', False), ('company_id', 'in', company_ids)]
+        </field>
+        <field name="global" eval="True"/>
+    </record>
+
+    <!-- User Access Rules -->
+    <record id="boq_project_user_rule" model="ir.rule">
+        <field name="name">BOQ Project User Access</field>
+        <field name="model_id" ref="model_boq_project"/>
+        <field name="domain_force">
+            ['|', 
+                ('user_id', '=', user.id), 
+                ('project_manager_id', '=', user.id)]
+        </field>
+        <field name="groups" eval="[(4, ref('group_boq_user'))]"/>
+    </record>
+
+    <!-- Manager Full Access -->
+    <record id="boq_project_manager_rule" model="ir.rule">
+        <field name="name">BOQ Project Manager Full Access</field>
+        <field name="model_id" ref="model_boq_project"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="groups" eval="[(4, ref('group_boq_manager'))]"/>
+    </record>
+</odoo>
