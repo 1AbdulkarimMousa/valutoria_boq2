@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- CRM Lead Form View Extension -->
+    <record id="view_crm_lead_form_boq" model="ir.ui.view">
+        <field name="name">crm.lead.form.boq</field>
+        <field name="model">crm.lead</field>
+        <field name="inherit_id" ref="crm.view_lead_form"/>
+        <field name="arch" type="xml">
+            <!-- Add BOQ button to button box -->
+            <div name="button_box" position="inside">
+                <button name="action_view_boqs" type="object"
+                        class="oe_stat_button" icon="fa-list-alt">
+                    <field name="boq_count" widget="statinfo" string="BOQs"/>
+                </button>
+            </div>
+            
+            <!-- Add Create BOQ button in header -->
+            <header position="inside">
+                <button name="action_create_boq" string="Create BOQ" 
+                        type="object" class="btn-primary"
+                        invisible="stage_id not in %(crm.stage_lead_won)d or not partner_id"/>
+            </header>
+        </field>
+    </record>
+</odoo>
