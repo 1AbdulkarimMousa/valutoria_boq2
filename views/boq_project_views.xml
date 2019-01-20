@@ -1,0 +1,369 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- BOQ Project List View -->
+    <record id="view_boq_project_list" model="ir.ui.view">
+        <field name="name">boq.project.list</field>
+        <field name="model">boq.project</field>
+        <field name="arch" type="xml">
+            <list string="BOQ Projects" 
+                  decoration-info="state == 'draft'" 
+                  decoration-warning="state == 'submitted'" 
+                  decoration-success="state == 'approved'"
+                  decoration-muted="state == 'done'">
+                <field name="name"/>
+                <field name="customer_id"/>
+                <field name="project_manager_id" widget="many2one_avatar_user"/>
+                <field name="type"/>
+                <field name="total" widget="monetary"/>
+                <field name="billed_progress_percent" widget="progressbar"/>
+                <field name="onsite_progress_percent" widget="progressbar"/>
+                <field name="state" widget="badge" 
+                       decoration-info="state == 'draft'"
+                       decoration-warning="state == 'submitted'"
+                       decoration-success="state in ('approved', 'in_progress')"
+                       decoration-muted="state == 'done'"/>
+                <field name="create_date"/>
+                <field name="currency_id" column_invisible="1"/>
+                <field name="company_id" groups="base.group_multi_company"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- BOQ Project Form View -->
+    <record id="view_boq_project_form" model="ir.ui.view">
+        <field name="name">boq.project.form</field>
+        <field name="model">boq.project</field>
+        <field name="arch" type="xml">
+            <form string="Bill of Quantities">
+                <header>
+                    <button name="action_set_margin" string="Set Margin" 
+                            type="object" class="btn-primary"
+                            invisible="state not in ('draft', 'submitted')"/>
+                    <button name="action_submit" string="Submit" 
+                            type="object" states="draft" class="btn-primary"/>
+                    <button name="action_approve" string="Approve" 
+                            type="object" states="submitted" class="btn-success"/>
+                    <button name="action_start_progress" string="Start Progress" 
+                            type="object" states="approved" class="btn-primary"/>
+                    <button name="action_create_payment_certificate" 
+                            string="Create Payment Certificate" 
+                            type="object" states="in_progress" class="btn-primary"/>
+                    <button name="action_register_advance_payment" 
+                            string="Register Advanced Payment" 
+                            type="object" states="in_progress" class="btn-secondary"/>
+                    <button name="action_request_variation" 
+                            string="Request New Variation" 
+                            type="object" states="in_progress" class="btn-secondary"/>
+                    <button name="action_done" string="Done" 
+                            type="object" states="in_progress" class="btn-success"/>
+                    <button name="action_cancel" string="Cancel" 
+                            type="object" states="draft,submitted,approved" class="btn-secondary"/>
+                    <button name="action_draft" string="Reset to Draft" 
+                            type="object" states="cancelled" class="btn-secondary"/>
+                    <field name="state" widget="statusbar" 
+                           statusbar_visible="draft,submitted,approved,in_progress,done"/>
+                </header>
+                
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_view_payment_certificates" type="object" 
+                                class="oe_stat_button" icon="fa-file-text-o">
+                            <field name="payment_certificate_count" widget="statinfo" 
+                                   string="Certificates"/>
+                        </button>
+                        <button name="action_view_variations" type="object" 
+                                class="oe_stat_button" icon="fa-random">
+                            <field name="variation_count" widget="statinfo" 
+                                   string="Variations"/>
+                        </button>
+                        <button name="%(sale_order.action_orders)d" type="action" 
+                                class="oe_stat_button" icon="fa-dollar"
+                                invisible="not sale_order_id"
+                                context="{'search_default_partner_id': customer_id}">
+                            <div class="o_field_widget o_stat_info">
+                                <span class="o_stat_text">Sale Order</span>
+                            </div>
+                        </button>
+                        <button name="%(project.act_project_project_2_project_task_all)d" type="action"
+                                class="oe_stat_button" icon="fa-tasks"
+                                invisible="not project_id"
+                                context="{'search_default_project_id': project_id}">
+                            <div class="o_field_widget o_stat_info">
+                                <span class="o_stat_text">Project</span>
+                            </div>
+                        </button>
+                    </div>
+                    
+                    <div class="oe_title">
+                        <h1><field name="name" readonly="1"/></h1>
+                    </div>
+                    
+                    <group>
+                        <group>
+                            <field name="customer_id" 
+                                   options="{'no_quick_create': True}"
+                                   readonly="state != 'draft'"/>
+                            <field name="project_manager_id" widget="many2one_avatar_user"
+                                   readonly="state not in ('draft', 'submitted')"/>
+                            <field name="user_id" widget="many2one_avatar_user"
+                                   readonly="state not in ('draft', 'submitted')"/>
+                            <field name="type" readonly="state != 'draft'"/>
+                            <field name="origin_lead_id" 
+                                   readonly="state not in ('draft', 'submitted')"/>
+                        </group>
+                        <group>
+                            <field name="project_id"/>
+                            <field name="start_date" readonly="state not in ('draft', 'submitted')"/>
+                            <field name="end_date" readonly="state not in ('draft', 'submitted')"/>
+                            <field name="currency_id" readonly="state != 'draft'"/>
+                            <field name="company_id" groups="base.group_multi_company" 
+                                   readonly="state != 'draft'"/>
+                        </group>
+                    </group>
+                    
+                    <group>
+                        <group>
+                            <field name="billed_progress_percent" widget="progressbar"/>
+                            <field name="onsite_progress_percent" widget="progressbar"/>
+                        </group>
+                        <group>
+                            <field name="margin_percent"/>
+                        </group>
+                    </group>
+                    
+                    <notebook>
+                        <page string="Activity Lines" name="activity_lines">
+                            <field name="activity_line_ids" 
+                                   readonly="state not in ('draft', 'submitted', 'in_progress')">
+                                <list editable="bottom">
+                                    <field name="sequence" widget="handle"/>
+                                    <field name="name" required="1"/>
+                                    <field name="product_id"/>
+                                    <field name="unit_of_measure"/>
+                                    <field name="total_previous" widget="monetary" sum="Total Previous"/>
+                                    <field name="total_current" widget="monetary" sum="Total Current"/>
+                                    <field name="total_cumulative" widget="monetary" sum="Total Cumulative"/>
+                                    <field name="margin_percent"/>
+                                    <field name="billed_progress_percent" widget="progressbar"/>
+                                    <field name="onsite_progress_percent" widget="progressbar"/>
+                                    <field name="currency_id" column_invisible="1"/>
+                                    <button name="action_view_subactivities" 
+                                           string="Sub-Activities" 
+                                           type="object" icon="fa-list" class="btn-link"/>
+                                </list>
+                            </field>
+                            
+                            <group class="oe_subtotal_footer oe_right">
+                                <field name="total_previous" widget="monetary"/>
+                                <field name="total_current" widget="monetary"/>
+                                <field name="total" widget="monetary" 
+                                      class="oe_subtotal_footer_separator"/>
+                            </group>
+                        </page>
+                        
+                        <page string="Accounting" name="accounting">
+                            <group string="Project Analytics">
+                                <group>
+                                    <field name="analytic_account_id"/>
+                                </group>
+                            </group>
+                            
+                            <group string="Retention">
+                                <group>
+                                    <field name="retention_tax"/>
+                                    <field name="retention_journal_id"/>
+                                </group>
+                                <group>
+                                    <field name="retention_amount_total" widget="monetary"/>
+                                </group>
+                            </group>
+                            
+                            <group string="Advanced Payment">
+                                <group>
+                                    <field name="adv_payment_journal_id"/>
+                                    <label for="advanced_payment_amount_original" string="Original Amount"/>
+                                    <div class="o_row">
+                                        <field name="advanced_payment_amount_original" widget="monetary"/>
+                                        <span>(<field name="advanced_payment_percentage_original"/>%)</span>
+                                    </div>
+                                    <field name="outstanding_advanced_payment_original" widget="monetary"/>
+                                </group>
+                                <group>
+                                    <label for="advanced_payment_amount_variation" string="Variation Amount"/>
+                                    <div class="o_row">
+                                        <field name="advanced_payment_amount_variation" widget="monetary"/>
+                                        <span>(<field name="advanced_payment_percentage_variation"/>%)</span>
+                                    </div>
+                                    <field name="outstanding_advanced_payment_variation" widget="monetary"/>
+                                </group>
+                            </group>
+                            
+                            <group string="Costing">
+                                <field name="cost_type_ids" widget="many2many_tags"/>
+                            </group>
+                            
+                            <group class="oe_subtotal_footer oe_right">
+                                <field name="total_previous" widget="monetary"/>
+                                <field name="total_current" widget="monetary"/>
+                                <field name="total" widget="monetary"/>
+                            </group>
+                        </page>
+                    </notebook>
+                </sheet>
+                
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <!-- BOQ Project Kanban View -->
+    <record id="view_boq_project_kanban" model="ir.ui.view">
+        <field name="name">boq.project.kanban</field>
+        <field name="model">boq.project</field>
+        <field name="arch" type="xml">
+            <kanban default_group_by="state" class="o_kanban_small_column">
+                <field name="name"/>
+                <field name="customer_id"/>
+                <field name="project_manager_id"/>
+                <field name="type"/>
+                <field name="total"/>
+                <field name="billed_progress_percent"/>
+                <field name="onsite_progress_percent"/>
+                <field name="state"/>
+                <field name="currency_id"/>
+                <field name="activity_ids"/>
+                <field name="activity_state"/>
+                <progressbar field="activity_state" colors='{"planned": "success", "today": "warning", "overdue": "danger"}'/>
+                
+                <templates>
+                    <t t-name="card">
+                        <div class="oe_kanban_card oe_kanban_global_click">
+                            <div class="o_kanban_record_top">
+                                <div class="o_kanban_record_headings">
+                                    <strong class="o_kanban_record_title">
+                                        <field name="name"/>
+                                    </strong>
+                                </div>
+                                <div class="o_kanban_manage_button_section">
+                                    <a class="o_kanban_manage_toggle_button" href="#">
+                                        <i class="fa fa-ellipsis-v" role="img" aria-label="Manage" title="Manage"/>
+                                    </a>
+                                </div>
+                            </div>
+                            
+                            <div class="o_kanban_record_body">
+                                <field name="customer_id"/>
+                                <div class="text-muted">
+                                    <i class="fa fa-user"/> <field name="project_manager_id"/>
+                                </div>
+                                <div class="text-muted">
+                                    <i class="fa fa-tag"/> <field name="type"/>
+                                </div>
+                                <div class="mt8">
+                                    <strong>Total: <field name="total" widget="monetary"/></strong>
+                                </div>
+                                <div class="mt4">
+                                    <div class="text-muted">Billed Progress</div>
+                                    <field name="billed_progress_percent" widget="progressbar"/>
+                                </div>
+                                <div class="mt4">
+                                    <div class="text-muted">Onsite Progress</div>
+                                    <field name="onsite_progress_percent" widget="progressbar"/>
+                                </div>
+                            </div>
+                            
+                            <div class="o_kanban_record_bottom">
+                                <div class="oe_kanban_bottom_left">
+                                    <field name="activity_ids" widget="kanban_activity"/>
+                                </div>
+                                <div class="oe_kanban_bottom_right">
+                                    <field name="project_manager_id" widget="many2one_avatar_user"/>
+                                </div>
+                            </div>
+                            
+                            <div class="o_kanban_manage_button_section o_kanban_manage_view">
+                                <a type="edit" class="o_kanban_manage_button_action">Edit</a>
+                                <a name="action_view_payment_certificates" type="object" class="o_kanban_manage_button_action">Certificates</a>
+                                <a name="action_view_variations" type="object" class="o_kanban_manage_button_action">Variations</a>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <!-- BOQ Project Search View -->
+    <record id="view_boq_project_search" model="ir.ui.view">
+        <field name="name">boq.project.search</field>
+        <field name="model">boq.project</field>
+        <field name="arch" type="xml">
+            <search string="BOQ Projects">
+                <field name="name" string="BOQ" filter_domain="[('name', 'ilike', self)]"/>
+                <field name="customer_id"/>
+                <field name="project_manager_id"/>
+                <field name="type"/>
+                <field name="state"/>
+                
+                <separator/>
+                <filter name="my_boq" string="My BOQs" 
+                        domain="['|', ('user_id', '=', uid), ('project_manager_id', '=', uid)]"/>
+                <filter name="client_boq" string="Client BOQs" 
+                        domain="[('type', '=', 'client')]"/>
+                <filter name="subcontract_boq" string="Subcontract BOQs" 
+                        domain="[('type', '=', 'subcontract')]"/>
+                
+                <separator/>
+                <filter name="draft" string="Draft" 
+                        domain="[('state', '=', 'draft')]"/>
+                <filter name="in_progress" string="In Progress" 
+                        domain="[('state', '=', 'in_progress')]"/>
+                <filter name="done" string="Done" 
+                        domain="[('state', '=', 'done')]"/>
+                
+                <separator/>
+                <filter name="filter_create_date" string="Creation Date" date="create_date"/>
+                
+                <group expand="0" string="Group By">
+                    <filter name="group_by_customer" string="Customer" 
+                            context="{'group_by': 'customer_id'}"/>
+                    <filter name="group_by_project_manager" string="Project Manager" 
+                            context="{'group_by': 'project_manager_id'}"/>
+                    <filter name="group_by_type" string="Type" 
+                            context="{'group_by': 'type'}"/>
+                    <filter name="group_by_state" string="State" 
+                            context="{'group_by': 'state'}"/>
+                    <filter name="group_by_create_date" string="Creation Date" 
+                            context="{'group_by': 'create_date:month'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- BOQ Project Pivot View -->
+    <record id="view_boq_project_pivot" model="ir.ui.view">
+        <field name="name">boq.project.pivot</field>
+        <field name="model">boq.project</field>
+        <field name="arch" type="xml">
+            <pivot string="BOQ Analysis">
+                <field name="customer_id" type="row"/>
+                <field name="state" type="col"/>
+                <field name="total" type="measure"/>
+                <field name="billed_progress_percent" type="measure"/>
+                <field name="onsite_progress_percent" type="measure"/>
+            </pivot>
+        </field>
+    </record>
+
+    <!-- BOQ Project Graph View -->
+    <record id="view_boq_project_graph" model="ir.ui.view">
+        <field name="name">boq.project.graph</field>
+        <field name="model">boq.project</field>
+        <field name="arch" type="xml">
+            <graph string="BOQ Analysis">
+                <field name="state"/>
+                <field name="total" type="measure"/>
+            </graph>
+        </field>
+    </record>
+</odoo>
