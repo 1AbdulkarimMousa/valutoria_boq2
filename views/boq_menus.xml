@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Root Menu -->
+    <menuitem 
+        id="menu_boq_root" 
+        name="BOQ" 
+        web_icon="boq,static/description/icon.png"
+        sequence="50"
+        groups="group_boq_user"/>
+
+    <!-- Main BOQ Menu -->
+    <menuitem 
+        id="menu_boq_main" 
+        name="Bill of Quantities" 
+        parent="menu_boq_root" 
+        sequence="10"/>
+
+    <!-- BOQ Projects -->
+    <record id="action_boq_project" model="ir.actions.act_window">
+        <field name="name">Bill of Quantities</field>
+        <field name="res_model">boq.project</field>
+        <field name="view_mode">list,form,kanban</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create your first BOQ!
+            </p>
+            <p>
+                Create Bill of Quantities for your construction projects with
+                activities, sub-activities, costing, and progress tracking.
+            </p>
+        </field>
+    </record>
+
+    <menuitem 
+        id="menu_boq_project" 
+        name="BOQ Projects" 
+        parent="menu_boq_main" 
+        action="action_boq_project"
+        sequence="10"/>
+
+    <!-- Payment Certificates -->
+    <record id="action_boq_payment_certificate" model="ir.actions.act_window">
+        <field name="name">Payment Certificates</field>
+        <field name="res_model">boq.payment.certificate</field>
+        <field name="view_mode">list,form,kanban</field>
+        <field name="context">{'search_default_group_by_state': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No payment certificates yet!
+            </p>
+            <p>
+                Payment certificates are created from BOQ progress to invoice clients
+                for completed work.
+            </p>
+        </field>
+    </record>
+
+    <menuitem 
+        id="menu_boq_payment_certificate" 
+        name="Payment Certificates" 
+        parent="menu_boq_main" 
+        action="action_boq_payment_certificate"
+        sequence="20"/>
+
+    <!-- Variation Orders -->
+    <record id="action_boq_variation" model="ir.actions.act_window">
+        <field name="name">Variation Orders</field>
+        <field name="res_model">boq.variation</field>
+        <field name="view_mode">list,form</field>
+        <field name="context">{'search_default_group_by_state': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No variations yet!
+            </p>
+            <p>
+                Variation orders manage changes to the original BOQ scope
+                during project execution.
+            </p>
+        </field>
+    </record>
+
+    <menuitem 
+        id="menu_boq_variation" 
+        name="Variation Orders" 
+        parent="menu_boq_main" 
+        action="action_boq_variation"
+        sequence="30"/>
+
+    <!-- Reporting Menu -->
+    <menuitem 
+        id="menu_boq_reporting" 
+        name="Reporting" 
+        parent="menu_boq_root" 
+        sequence="80"/>
+
+    <!-- BOQ Analysis -->
+    <record id="action_boq_analysis" model="ir.actions.act_window">
+        <field name="name">BOQ Analysis</field>
+        <field name="res_model">boq.project</field>
+        <field name="view_mode">pivot,graph,list</field>
+        <field name="context">{
+            'search_default_group_by_customer': 1,
+            'search_default_group_by_state': 1,
+        }</field>
+    </record>
+
+    <menuitem 
+        id="menu_boq_analysis" 
+        name="BOQ Analysis" 
+        parent="menu_boq_reporting" 
+        action="action_boq_analysis"
+        sequence="10"/>
+
+    <!-- Configuration Menu -->
+    <menuitem 
+        id="menu_boq_config" 
+        name="Configuration" 
+        parent="menu_boq_root" 
+        sequence="90"
+        groups="group_boq_manager"/>
+
+    <!-- Cost Types -->
+    <record id="action_boq_cost_type" model="ir.actions.act_window">
+        <field name="name">Cost Types</field>
+        <field name="res_model">boq.cost.type</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <menuitem 
+        id="menu_boq_cost_type" 
+        name="Cost Types" 
+        parent="menu_boq_config" 
+        action="action_boq_cost_type"
+        sequence="10"/>
+</odoo>

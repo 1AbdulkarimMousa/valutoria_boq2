@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- BOQ Advance Payment Journal -->
+    <record id="boq_advance_payment_journal" model="account.journal">
+        <field name="name">BOQ Advance Payments</field>
+        <field name="code">BQADV</field>
+        <field name="type">general</field>
+        <field name="update_posted">True</field>
+    </record>
+
+    <!-- BOQ Retention Journal -->
+    <record id="boq_retention_journal" model="account.journal">
+        <field name="name">BOQ Retention</field>
+        <field name="code">BQRET</field>
+        <field name="type">general</field>
+        <field name="update_posted">True</field>
+    </record>
+</odoo>
