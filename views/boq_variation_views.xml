@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Variation List View -->
+    <record id="view_boq_variation_list" model="ir.ui.view">
+        <field name="name">boq.variation.list</field>
+        <field name="model">boq.variation</field>
+        <field name="arch" type="xml">
+            <list string="Variation Orders"
+                  decoration-info="state == 'draft'"
+                  decoration-warning="state == 'submitted'"
+                  decoration-success="state == 'approved'"
+                  decoration-muted="state == 'applied'">
+                <field name="name"/>
+                <field name="boq_id"/>
+                <field name="customer_id"/>
+                <field name="request_owner_id" widget="many2one_avatar_user"/>
+                <field name="description"/>
+                <field name="total_variation_amount" widget="monetary" sum="Total Variation"/>
+                <field name="state" widget="badge"
+                       decoration-info="state == 'draft'"
+                       decoration-warning="state == 'submitted'"
+                       decoration-success="state == 'approved'"
+                       decoration-muted="state == 'applied'"/>
+                <field name="create_date"/>
+                <field name="currency_id" column_invisible="1"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Variation Form View -->
+    <record id="view_boq_variation_form" model="ir.ui.view">
+        <field name="name">boq.variation.form</field>
+        <field name="model">boq.variation</field>
+        <field name="arch" type="xml">
+            <form string="Variation Order">
+                <header>
+                    <button name="action_submit" string="Submit for Approval"
+                            type="object" states="draft" class="btn-primary"/>
+                    <button name="action_approve" string="Approve"
+                            type="object" states="submitted" class="btn-success"/>
+                    <button name="action_apply_variation" string="Apply Variation"
+                            type="object" states="approved" class="btn-primary"/>
+                    <button name="action_refuse" string="Refuse"
+                            type="object" states="submitted" class="btn-secondary"/>
+                    <button name="action_cancel" string="Cancel"
+                            type="object" states="draft,submitted" class="btn-secondary"/>
+                    <field name="state" widget="statusbar"
+                           statusbar_visible="draft,submitted,approved,applied"/>
+                </header>
+                
+                <sheet>
+                    <div class="oe_title">
+                        <h1><field name="name" readonly="1"/></h1>
+                    </div>
+                    
+                    <group>
+                        <group>
+                            <field name="boq_id" readonly="state != 'draft'"/>
+                            <field name="customer_id" readonly="1"/>
+                            <field name="request_owner_id" readonly="state != 'draft'"/>
+                            <field name="category"/>
+                        </group>
+                        <group>
+                            <field name="total_variation_amount" widget="monetary"/>
+                            <field name="currency_id" invisible="1"/>
+                            <field name="approval_date" readonly="1" invisible="not approval_date"/>
+                            <field name="company_id" groups="base.group_multi_company" readonly="1"/>
+                        </group>
+                    </group>
+                    
+                    <group>
+                        <field name="description" required="1" readonly="state not in ('draft', 'submitted')"/>
+                        <field name="reason" readonly="state not in ('draft', 'submitted')"/>
+                    </group>
+                    
+                    <group string="Approvers" invisible="state == 'draft'">
+                        <field name="approver_ids" widget="many2many_tags"
+                               readonly="state not in ('draft', 'submitted')"/>
+                        <field name="approved_by_ids" widget="many2many_tags" readonly="1"
+                               invisible="not approved_by_ids"/>
+                    </group>
+                    
+                    <notebook>
+                        <page string="Edit Sub-Activities" name="edit">
+                            <field name="edit_line_ids" readonly="state not in ('draft', 'submitted')">
+                                <list editable="bottom">
+                                    <field name="target_subactivity_id" required="1"/>
+                                    <field name="product_id" readonly="1"/>
+                                    <field name="original_qty" readonly="1"/>
+                                    <field name="new_qty"/>
+                                    <field name="original_cost" readonly="1"/>
+                                    <field name="new_cost"/>
+                                    <field name="original_margin" readonly="1"/>
+                                    <field name="new_margin"/>
+                                    <field name="new_unit_price" readonly="1"/>
+                                    <field name="original_total_amount" widget="monetary" readonly="1"/>
+                                    <field name="new_total_amount" widget="monetary" readonly="1"/>
+                                    <field name="variation_amount" widget="monetary" readonly="1" sum="Variation Total"/>
+                                    <field name="currency_id" column_invisible="1"/>
+                                    <field name="action_type" column_invisible="1"/>
+                                </list>
+                            </field>
+                        </page>
+                        
+                        <page string="Add Sub-Activities" name="add">
+                            <field name="add_line_ids" readonly="state not in ('draft', 'submitted')">
+                                <list editable="bottom">
+                                    <field name="target_activity_id" required="1"/>
+                                    <field name="product_id" required="1"/>
+                                    <field name="description"/>
+                                    <field name="activity_type"/>
+                                    <field name="new_qty" required="1"/>
+                                    <field name="new_cost" required="1"/>
+                                    <field name="new_margin"/>
+                                    <field name="new_unit_price" readonly="1"/>
+                                    <field name="new_total_amount" widget="monetary" readonly="1" sum="Addition Total"/>
+                                    <field name="currency_id" column_invisible="1"/>
+                                    <field name="action_type" column_invisible="1"/>
+                                </list>
+                            </field>
+                        </page>
+                        
+                        <page string="Create New Activities" name="new_activity">
+                            <field name="new_activity_line_ids" readonly="state not in ('draft', 'submitted')">
+                                <list editable="bottom">
+                                    <field name="activity_name" required="1"/>
+                                    <field name="product_id" required="1"/>
+                                    <field name="description"/>
+                                    <field name="activity_type"/>
+                                    <field name="new_qty" required="1"/>
+                                    <field name="new_cost" required="1"/>
+                                    <field name="new_margin"/>
+                                    <field name="new_unit_price" readonly="1"/>
+                                    <field name="new_total_amount" widget="monetary" readonly="1" sum="New Activity Total"/>
+                                    <field name="currency_id" column_invisible="1"/>
+                                    <field name="action_type" column_invisible="1"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+                
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <!-- Variation Search View -->
+    <record id="view_boq_variation_search" model="ir.ui.view">
+        <field name="name">boq.variation.search</field>
+        <field name="model">boq.variation</field>
+        <field name="arch" type="xml">
+            <search string="Variation Orders">
+                <field name="name"/>
+                <field name="boq_id"/>
+                <field name="customer_id"/>
+                <field name="request_owner_id"/>
+                <field name="description"/>
+                <field name="state"/>
+                
+                <separator/>
+                <filter name="my_variations" string="My Variations"
+                        domain="[('request_owner_id', '=', uid)]"/>
+                <filter name="to_approve" string="To Approve"
+                        domain="[('approver_ids', 'in', [uid]), ('state', '=', 'submitted')]"/>
+                
+                <separator/>
+                <filter name="draft" string="Draft" domain="[('state', '=', 'draft')]"/>
+                <filter name="submitted" string="Submitted" domain="[('state', '=', 'submitted')]"/>
+                <filter name="approved" string="Approved" domain="[('state', '=', 'approved')]"/>
+                <filter name="applied" string="Applied" domain="[('state', '=', 'applied')]"/>
+                
+                <separator/>
+                <filter name="filter_create_date" string="Creation Date" date="create_date"/>
+                
+                <group expand="0" string="Group By">
+                    <filter name="group_by_boq" string="BOQ" context="{'group_by': 'boq_id'}"/>
+                    <filter name="group_by_customer" string="Customer" context="{'group_by': 'customer_id'}"/>
+                    <filter name="group_by_owner" string="Request Owner" context="{'group_by': 'request_owner_id'}"/>
+                    <filter name="group_by_state" string="State" context="{'group_by': 'state'}"/>
+                    <filter name="group_by_date" string="Creation Date" 
+                            context="{'group_by': 'create_date:month'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+</odoo>
