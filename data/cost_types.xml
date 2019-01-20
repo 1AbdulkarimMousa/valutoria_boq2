@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Default Cost Types -->
+    <record id="cost_type_delivery" model="boq.cost.type">
+        <field name="name">Delivery</field>
+        <field name="code">DEL</field>
+        <field name="description">Transportation and delivery costs</field>
+    </record>
+
+    <record id="cost_type_overhead" model="boq.cost.type">
+        <field name="name">Overhead</field>
+        <field name="code">OH</field>
+        <field name="description">General overhead costs</field>
+    </record>
+
+    <record id="cost_type_equipment" model="boq.cost.type">
+        <field name="name">Equipment</field>
+        <field name="code">EQ</field>
+        <field name="description">Equipment rental and operation costs</field>
+    </record>
+
+    <record id="cost_type_labor" model="boq.cost.type">
+        <field name="name">Labor</field>
+        <field name="code">LAB</field>
+        <field name="description">Labor and manpower costs</field>
+    </record>
+
+    <record id="cost_type_material" model="boq.cost.type">
+        <field name="name">Material</field>
+        <field name="code">MAT</field>
+        <field name="description">Material and supply costs</field>
+    </record>
+</odoo>
