@@ -1,0 +1,203 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Payment Certificate List View -->
+    <record id="view_boq_payment_certificate_list" model="ir.ui.view">
+        <field name="name">boq.payment.certificate.list</field>
+        <field name="model">boq.payment.certificate</field>
+        <field name="arch" type="xml">
+            <list string="Payment Certificates"
+                  decoration-info="state == 'draft'"
+                  decoration-warning="state == 'submitted'"
+                  decoration-success="state == 'approved'">
+                <field name="name"/>
+                <field name="boq_id"/>
+                <field name="customer_id"/>
+                <field name="certificate_date"/>
+                <field name="amount_completed" widget="monetary" sum="Work Completed"/>
+                <field name="amount_approved" widget="monetary" sum="Approved"/>
+                <field name="amount_retention" widget="monetary" sum="Retention"/>
+                <field name="amount_invoice" widget="monetary" sum="Net Invoice"/>
+                <field name="state" widget="badge"
+                       decoration-info="state == 'draft'"
+                       decoration-warning="state == 'submitted'"
+                       decoration-success="state in ('approved', 'invoiced')"
+                       decoration-muted="state == 'paid'"/>
+                <field name="currency_id" column_invisible="1"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Payment Certificate Form View -->
+    <record id="view_boq_payment_certificate_form" model="ir.ui.view">
+        <field name="name">boq.payment.certificate.form</field>
+        <field name="model">boq.payment.certificate</field>
+        <field name="arch" type="xml">
+            <form string="Payment Certificate">
+                <header>
+                    <button name="action_set_approved_amount" string="Set Approved Amount"
+                            type="object" states="draft" class="btn-secondary"/>
+                    <button name="action_submit" string="Submit"
+                            type="object" states="draft" class="btn-primary"/>
+                    <button name="action_approve" string="Approve"
+                            type="object" states="submitted" class="btn-success"/>
+                    <button name="action_view_invoice" string="View Invoice"
+                            type="object" invisible="not invoice_id" class="btn-secondary"/>
+                    <field name="state" widget="statusbar"
+                           statusbar_visible="draft,submitted,approved,invoiced"/>
+                </header>
+                
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_view_invoice" type="object"
+                                class="oe_stat_button" icon="fa-pencil-square-o"
+                                invisible="not invoice_id">
+                            <div class="o_field_widget o_stat_info">
+                                <span class="o_stat_text">Invoice</span>
+                            </div>
+                        </button>
+                    </div>
+                    <div class="oe_title">
+                        <h1><field name="name" readonly="1"/></h1>
+                    </div>
+                    
+                    <group>
+                        <group>
+                            <field name="boq_id" readonly="state != 'draft'"/>
+                            <field name="customer_id" readonly="1"/>
+                            <field name="certificate_date" readonly="state != 'draft'"/>
+                        </group>
+                        <group>
+                            <field name="company_id" groups="base.group_multi_company" readonly="1"/>
+                            <field name="currency_id" invisible="1"/>
+                            <field name="invoice_id" readonly="1" invisible="not invoice_id"/>
+                        </group>
+                    </group>
+                    
+                    <notebook>
+                        <page string="Certificate Lines" name="lines">
+                            <field name="line_ids" readonly="state not in ('draft', 'submitted')">
+                                <list editable="bottom">
+                                    <field name="subactivity_id" readonly="1"/>
+                                    <field name="product_id" readonly="1"/>
+                                    <field name="master_qty" readonly="1"/>
+                                    <field name="unit_price" readonly="1"/>
+                                    <field name="completion_percent"/>
+                                    <field name="approved_percent"/>
+                                    <field name="qty_completed" readonly="1"/>
+                                    <field name="qty_approved" readonly="1"/>
+                                    <field name="amount_completed" widget="monetary" readonly="1"/>
+                                    <field name="amount_approved" widget="monetary" readonly="1"/>
+                                    <field name="currency_id" column_invisible="1"/>
+                                </list>
+                            </field>
+                        </page>
+                        
+                        <page string="Financial Summary" name="summary">
+                            <group>
+                                <group string="Work Progress">
+                                    <field name="amount_completed" widget="monetary"/>
+                                    <field name="amount_approved" widget="monetary"/>
+                                </group>
+                                <group string="Deductions">
+                                    <field name="amount_retention" widget="monetary"/>
+                                    <field name="amount_advance_recovery_orig" widget="monetary"/>
+                                    <field name="amount_advance_recovery_var" widget="monetary"/>
+                                </group>
+                            </group>
+                            
+                            <group>
+                                <group>
+                                </group>
+                                <group>
+                                    <field name="amount_invoice" widget="monetary" 
+                                           class="oe_subtotal_footer_separator"/>
+                                </group>
+                            </group>
+                        </page>
+                    </notebook>
+                </sheet>
+                
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <!-- Payment Certificate Kanban View -->
+    <record id="view_boq_payment_certificate_kanban" model="ir.ui.view">
+        <field name="name">boq.payment.certificate.kanban</field>
+        <field name="model">boq.payment.certificate</field>
+        <field name="arch" type="xml">
+            <kanban default_group_by="state" class="o_kanban_small_column">
+                <field name="name"/>
+                <field name="boq_id"/>
+                <field name="customer_id"/>
+                <field name="certificate_date"/>
+                <field name="amount_approved"/>
+                <field name="amount_invoice"/>
+                <field name="state"/>
+                <field name="currency_id"/>
+                
+                <templates>
+                    <t t-name="card">
+                        <div class="oe_kanban_card oe_kanban_global_click">
+                            <div class="o_kanban_record_top">
+                                <div class="o_kanban_record_headings">
+                                    <strong class="o_kanban_record_title">
+                                        <field name="name"/>
+                                    </strong>
+                                </div>
+                            </div>
+                            
+                            <div class="o_kanban_record_body">
+                                <field name="boq_id"/>
+                                <div class="text-muted">
+                                    <i class="fa fa-user"/> <field name="customer_id"/>
+                                </div>
+                                <div class="text-muted">
+                                    <i class="fa fa-calendar"/> <field name="certificate_date"/>
+                                </div>
+                                <div class="mt8">
+                                    <strong>Approved: <field name="amount_approved" widget="monetary"/></strong>
+                                </div>
+                                <div>
+                                    <strong>Net Invoice: <field name="amount_invoice" widget="monetary"/></strong>
+                                </div>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <!-- Payment Certificate Search View -->
+    <record id="view_boq_payment_certificate_search" model="ir.ui.view">
+        <field name="name">boq.payment.certificate.search</field>
+        <field name="model">boq.payment.certificate</field>
+        <field name="arch" type="xml">
+            <search string="Payment Certificates">
+                <field name="name"/>
+                <field name="boq_id"/>
+                <field name="customer_id"/>
+                <field name="state"/>
+                
+                <separator/>
+                <filter name="draft" string="Draft" domain="[('state', '=', 'draft')]"/>
+                <filter name="submitted" string="Submitted" domain="[('state', '=', 'submitted')]"/>
+                <filter name="approved" string="Approved" domain="[('state', '=', 'approved')]"/>
+                <filter name="invoiced" string="Invoiced" domain="[('state', '=', 'invoiced')]"/>
+                
+                <separator/>
+                <filter name="filter_certificate_date" string="Certificate Date" date="certificate_date"/>
+                
+                <group expand="0" string="Group By">
+                    <filter name="group_by_boq" string="BOQ" context="{'group_by': 'boq_id'}"/>
+                    <filter name="group_by_customer" string="Customer" context="{'group_by': 'customer_id'}"/>
+                    <filter name="group_by_state" string="State" context="{'group_by': 'state'}"/>
+                    <filter name="group_by_date" string="Certificate Date" 
+                            context="{'group_by': 'certificate_date:month'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+</odoo>
