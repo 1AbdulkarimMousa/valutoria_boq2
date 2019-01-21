@@ -1,0 +1,102 @@
+/* BOQ Module Styles */
+
+.boq_progress_bar {
+    width: 100%;
+    height: 20px;
+    background-color: #f0f0f0;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.boq_progress_bar_fill {
+    height: 100%;
+    background-color: #28a745;
+    transition: width 0.3s ease;
+}
+
+.boq_variation_badge {
+    background-color: #ffc107;
+    color: #212529;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 500;
+}
+
+.boq_subactivity_row {
+    background-color: #f8f9fa;
+}
+
+.boq_total_row {
+    background-color: #e9ecef;
+    font-weight: bold;
+}
+
+.boq_card_header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+}
+
+.boq_status_draft {
+    color: #6c757d;
+}
+
+.boq_status_submitted {
+    color: #fd7e14;
+}
+
+.boq_status_approved {
+    color: #28a745;
+}
+
+.boq_status_in_progress {
+    color: #007bff;
+}
+
+.boq_status_done {
+    color: #6f42c1;
+}
+
+/* Certificate specific styles */
+.payment_certificate_summary {
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 0.25rem;
+    padding: 15px;
+    margin: 10px 0;
+}
+
+.payment_certificate_summary .row {
+    margin-bottom: 5px;
+}
+
+.payment_certificate_total {
+    border-top: 2px solid #dee2e6;
+    padding-top: 10px;
+    font-weight: bold;
+    font-size: 1.1em;
+}
+
+/* Variation specific styles */
+.variation_line_edit {
+    background-color: #fff3cd;
+}
+
+.variation_line_add {
+    background-color: #d4edda;
+}
+
+.variation_line_new {
+    background-color: #cce5ff;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .boq_card_header h4 {
+        font-size: 1.1rem;
+    }
+    
+    .o_kanban_record .o_kanban_record_title {
+        font-size: 1rem;
+    }
+}
