@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Subcontract Wizard Form -->
+    <record id="view_subcontract_wizard_form" model="ir.ui.view">
+        <field name="name">boq.subcontract.wizard.form</field>
+        <field name="model">boq.subcontract.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Create Subcontract Purchase Order">
+                <group>
+                    <group>
+                        <field name="boq_id" readonly="1"/>
+                        <field name="vendor_id" options="{'no_quick_create': True}"/>
+                    </group>
+                    <group>
+                        <field name="project_name"/>
+                        <field name="currency_id" readonly="1"/>
+                    </group>
+                </group>
+                
+                <notebook>
+                    <page string="Activities to Subcontract">
+                        <field name="line_ids">
+                            <list editable="bottom">
+                                <field name="selected"/>
+                                <field name="activity_name"/>
+                                <field name="total_quantity"/>
+                                <field name="unit_cost" widget="monetary"/>
+                                <field name="estimated_total" widget="monetary" sum="Total"/>
+                                <field name="currency_id" column_invisible="1"/>
+                            </list>
+                        </field>
+                    </page>
+                </notebook>
+                
+                <footer>
+                    <button name="action_create_purchase_order" string="Create Purchase Order" 
+                            type="object" class="btn-primary"/>
+                    <button string="Cancel" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+</odoo>
