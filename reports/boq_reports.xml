@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- BOQ Report Action -->
+    <record id="action_report_boq" model="ir.actions.report">
+        <field name="name">BOQ Report</field>
+        <field name="model">boq.project</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">boq.report_boq_document</field>
+        <field name="report_file">boq.report_boq_document</field>
+        <field name="binding_model_id" ref="model_boq_project"/>
+        <field name="binding_type">report</field>
+    </record>
+
+    <!-- BOQ Report Template -->
+    <template id="report_boq_document">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <t t-call="web.external_layout">
+                    <div class="page">
+                        <div class="oe_structure"/>
+                        
+                        <div class="row">
+                            <div class="col-6">
+                                <h2>Bill of Quantities</h2>
+                                <strong t-field="o.name"/>
+                            </div>
+                            <div class="col-6 text-right">
+                                <strong>Date:</strong> <span t-field="o.create_date" t-options="{'widget': 'date'}"/><br/>
+                                <strong>Customer:</strong> <span t-field="o.customer_id.name"/><br/>
+                                <strong>Project Manager:</strong> <span t-field="o.project_manager_id.name"/>
+                            </div>
+                        </div>
+                        
+                        <br/>
+                        
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Activity</th>
+                                    <th>Description</th>
+                                    <th class="text-right">Previous</th>
+                                    <th class="text-right">Current</th>
+                                    <th class="text-right">Total</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <t t-foreach="o.activity_line_ids" t-as="activity">
+                                    <tr>
+                                        <td><strong t-field="activity.name"/></td>
+                                        <td t-field="activity.description"/>
+                                        <td class="text-right">
+                                            <span t-field="activity.total_previous" 
+                                                  t-options="{'widget': 'monetary', 'display_currency': o.currency_id}"/>
+                                        </td>
+                                        <td class="text-right">
+                                            <span t-field="activity.total_current" 
+                                                  t-options="{'widget': 'monetary', 'display_currency': o.currency_id}"/>
+                                        </td>
+                                        <td class="text-right">
+                                            <span t-field="activity.total_cumulative" 
+                                                  t-options="{'widget': 'monetary', 'display_currency': o.currency_id}"/>
+                                        </td>
+                                    </tr>
+                                    
+                                    <!-- Sub-activities -->
+                                    <t t-foreach="activity.subactivity_ids" t-as="sub">
+                                        <tr class="text-muted">
+                                            <td style="padding-left: 30px;">
+                                                <span t-field="sub.product_id.name"/>
+                                            </td>
+                                            <td t-field="sub.description"/>
+                                            <td class="text-right">
+                                                <span t-field="sub.total_previous" 
+                                                      t-options="{'widget': 'monetary', 'display_currency': o.currency_id}"/>
+                                            </td>
+                                            <td class="text-right">
+                                                <span t-field="sub.total_current" 
+                                                      t-options="{'widget': 'monetary', 'display_currency': o.currency_id}"/>
+                                            </td>
+                                            <td class="text-right">
+                                                <span t-field="sub.total_cumulative" 
+                                                      t-options="{'widget': 'monetary', 'display_currency': o.currency_id}"/>
+                                            </td>
+                                        </tr>
+                                    </t>
+                                </t>
+                            </tbody>
+                            <tfoot>
+                                <tr class="border-top">
+                                    <th colspan="2">Total</th>
+                                    <th class="text-right">
+                                        <span t-field="o.total_previous" 
+                                              t-options="{'widget': 'monetary', 'display_currency': o.currency_id}"/>
+                                    </th>
+                                    <th class="text-right">
+                                        <span t-field="o.total_current" 
+                                              t-options="{'widget': 'monetary', 'display_currency': o.currency_id}"/>
+                                    </th>
+                                    <th class="text-right">
+                                        <span t-field="o.total" 
+                                              t-options="{'widget': 'monetary', 'display_currency': o.currency_id}"/>
+                                    </th>
+                                </tr>
+                            </tfoot>
+                        </table>
+                        
+                        <div class="oe_structure"/>
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+</odoo>

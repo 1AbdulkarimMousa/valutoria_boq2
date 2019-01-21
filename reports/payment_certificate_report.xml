@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Payment Certificate Report Action -->
+    <record id="action_report_payment_certificate" model="ir.actions.report">
+        <field name="name">Payment Certificate</field>
+        <field name="model">boq.payment.certificate</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">boq.report_payment_certificate_document</field>
+        <field name="report_file">boq.report_payment_certificate_document</field>
+        <field name="binding_model_id" ref="model_boq_payment_certificate"/>
+        <field name="binding_type">report</field>
+    </record>
+
+    <!-- Payment Certificate Report Template -->
+    <template id="report_payment_certificate_document">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <t t-call="web.external_layout">
+                    <div class="page">
+                        <div class="oe_structure"/>
+                        
+                        <div class="row">
+                            <div class="col-6">
+                                <h2>Payment Certificate (Mustahlas)</h2>
+                                <strong t-field="o.name"/>
+                            </div>
+                            <div class="col-6 text-right">
+                                <strong>Date:</strong> <span t-field="o.certificate_date" t-options="{'widget': 'date'}"/><br/>
+                                <strong>BOQ:</strong> <span t-field="o.boq_id.name"/><br/>
+                                <strong>Customer:</strong> <span t-field="o.customer_id.name"/><br/>
+                                <strong>Status:</strong> <span t-field="o.state"/>
+                            </div>
+                        </div>
+                        
+                        <br/>
+                        
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Item</th>
+                                    <th>Product</th>
+                                    <th class="text-center">Master Qty</th>
+                                    <th class="text-center">Completion %</th>
+                                    <th class="text-center">Approved %</th>
+                                    <th class="text-right">Unit Price</th>
+                                    <th class="text-right">Amount Approved</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <t t-foreach="o.line_ids" t-as="line">
+                                    <tr>
+                                        <td t-field="line.subactivity_id.name"/>
+                                        <td t-field="line.product_id.name"/>
+                                        <td class="text-center" t-field="line.master_qty"/>
+                                        <td class="text-center">
+                                            <span t-field="line.completion_percent"/>%
+                                        </td>
+                                        <td class="text-center">
+                                            <span t-field="line.approved_percent"/>%
+                                        </td>
+                                        <td class="text-right">
+                                            <span t-field="line.unit_price" 
+                                                  t-options="{'widget': 'monetary', 'display_currency': o.currency_id}"/>
+                                        </td>
+                                        <td class="text-right">
+                                            <span t-field="line.amount_approved" 
+                                                  t-options="{'widget': 'monetary', 'display_currency': o.currency_id}"/>
+                                        </td>
+                                    </tr>
+                                </t>
+                            </tbody>
+                        </table>
+                        
+                        <div class="row">
+                            <div class="col-6">
+                            </div>
+                            <div class="col-6">
+                                <table class="table table-sm">
+                                    <tr>
+                                        <td><strong>Work Completed Amount:</strong></td>
+                                        <td class="text-right">
+                                            <span t-field="o.amount_completed" 
+                                                  t-options="{'widget': 'monetary', 'display_currency': o.currency_id}"/>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Approved Amount:</strong></td>
+                                        <td class="text-right">
+                                            <span t-field="o.amount_approved" 
+                                                  t-options="{'widget': 'monetary', 'display_currency': o.currency_id}"/>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>Less: Retention (<span t-field="o.boq_id.retention_tax"/>):</td>
+                                        <td class="text-right">
+                                            (<span t-field="o.amount_retention" 
+                                                   t-options="{'widget': 'monetary', 'display_currency': o.currency_id}"/>)
+                                        </td>
+                                    </tr>
+                                    <tr t-if="o.amount_advance_recovery_orig">
+                                        <td>Less: Advance Recovery (Original):</td>
+                                        <td class="text-right">
+                                            (<span t-field="o.amount_advance_recovery_orig" 
+                                                   t-options="{'widget': 'monetary', 'display_currency': o.currency_id}"/>)
+                                        </td>
+                                    </tr>
+                                    <tr t-if="o.amount_advance_recovery_var">
+                                        <td>Less: Advance Recovery (Variation):</td>
+                                        <td class="text-right">
+                                            (<span t-field="o.amount_advance_recovery_var" 
+                                                   t-options="{'widget': 'monetary', 'display_currency': o.currency_id}"/>)
+                                        </td>
+                                    </tr>
+                                    <tr class="border-top">
+                                        <td><strong>Net Amount Payable:</strong></td>
+                                        <td class="text-right">
+                                            <strong>
+                                                <span t-field="o.amount_invoice" 
+                                                      t-options="{'widget': 'monetary', 'display_currency': o.currency_id}"/>
+                                            </strong>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+                        
+                        <br/>
+                        
+                        <div class="row">
+                            <div class="col-6">
+                                <p><strong>Contractor Signature:</strong></p>
+                                <br/><br/>
+                                <p>_______________________</p>
+                            </div>
+                            <div class="col-6">
+                                <p><strong>Client Approval:</strong></p>
+                                <br/><br/>
+                                <p>_______________________</p>
+                            </div>
+                        </div>
+                        
+                        <div class="oe_structure"/>
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+</odoo>
