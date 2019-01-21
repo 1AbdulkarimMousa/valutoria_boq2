@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Purchase Order Form View Extension -->
+    <record id="view_purchase_order_form_boq" model="ir.ui.view">
+        <field name="name">purchase.order.form.boq</field>
+        <field name="model">purchase.order</field>
+        <field name="inherit_id" ref="purchase.purchase_order_form"/>
+        <field name="arch" type="xml">
+            <!-- Add Subcontract BOQ button to button box -->
+            <div name="button_box" position="inside">
+                <button name="action_view_subcontract_boq" type="object"
+                        class="oe_stat_button" icon="fa-list-alt"
+                        invisible="not subcontract_boq_id">
+                    <div class="o_field_widget o_stat_info">
+                        <span class="o_stat_text">Subcontract BOQ</span>
+                    </div>
+                </button>
+            </div>
+            
+            <!-- Add BOQ fields in other info -->
+            <field name="company_id" position="after">
+                <field name="from_boq" readonly="1"/>
+                <field name="source_boq_id" readonly="1" invisible="not from_boq"/>
+                <field name="subcontract_boq_id" readonly="1" invisible="not subcontract_boq_id"/>
+            </field>
+            
+            <!-- Add BOQ subcontracting fields -->
+            <group name="other_info" position="inside">
+                <group string="BOQ Subcontracting" invisible="not from_boq">
+                    <field name="retention_tax"/>
+                    <field name="retention_journal_id"/>
+                    <field name="adv_payment_journal_id"/>
+                </group>
+            </group>
+        </field>
+    </record>
+    
+    <!-- Purchase Order Line Form View Extension -->
+    <record id="view_purchase_order_line_form_boq" model="ir.ui.view">
+        <field name="name">purchase.order.line.form.boq</field>
+        <field name="model">purchase.order.line</field>
+        <field name="inherit_id" ref="purchase.purchase_order_line_form"/>
+        <field name="arch" type="xml">
+            <field name="analytic_distribution" position="after">
+                <field name="boq_activity_id" invisible="not parent.from_boq"/>
+                <field name="boq_subactivity_ids" widget="many2many_tags" invisible="not parent.from_boq"/>
+            </field>
+        </field>
+    </record>
+</odoo>
