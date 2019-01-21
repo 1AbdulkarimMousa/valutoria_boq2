@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Advance Payment Wizard Form -->
+    <record id="view_advance_payment_wizard_form" model="ir.ui.view">
+        <field name="name">boq.advance.payment.wizard.form</field>
+        <field name="model">boq.advance.payment.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Register Advanced Payment">
+                <group>
+                    <group>
+                        <field name="boq_id" readonly="1"/>
+                        <field name="line_type"/>
+                        <field name="payment_method"/>
+                        <field name="payment_date"/>
+                    </group>
+                    <group>
+                        <field name="currency_id" readonly="1"/>
+                        <field name="journal_id"/>
+                        <field name="lines_total" widget="monetary"/>
+                    </group>
+                </group>
+                
+                <group>
+                    <group>
+                        <field name="percentage" widget="percentage" 
+                               invisible="payment_method != 'percentage'"/>
+                        <field name="amount" widget="monetary"
+                               invisible="payment_method != 'amount'"/>
+                    </group>
+                </group>
+                
+                <notebook>
+                    <page string="Lines">
+                        <field name="line_ids">
+                            <list editable="bottom">
+                                <field name="selected"/>
+                                <field name="activity_name"/>
+                                <field name="product_name"/>
+                                <field name="amount" widget="monetary" sum="Total"/>
+                                <field name="is_variation" widget="boolean_toggle"/>
+                                <field name="currency_id" column_invisible="1"/>
+                            </list>
+                        </field>
+                    </page>
+                </notebook>
+                
+                <footer>
+                    <button name="action_create_invoice" string="Create Invoice" 
+                            type="object" class="btn-primary"/>
+                    <button string="Cancel" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+</odoo>
