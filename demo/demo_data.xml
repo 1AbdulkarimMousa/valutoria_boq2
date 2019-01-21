@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Demo BOQ Project -->
+    <record id="demo_boq_project_1" model="boq.project">
+        <field name="name">BOQ001 - Villa Construction</field>
+        <field name="customer_id" ref="base.res_partner_2"/>
+        <field name="project_manager_id" ref="base.user_admin"/>
+        <field name="type">client</field>
+        <field name="start_date" eval="(DateTime.today() - timedelta(days=30)).strftime('%Y-%m-%d')"/>
+        <field name="end_date" eval="(DateTime.today() + timedelta(days=180)).strftime('%Y-%m-%d')"/>
+        <field name="margin_percent">10.0</field>
+        <field name="state">in_progress</field>
+    </record>
+
+    <!-- Demo Activities -->
+    <record id="demo_activity_civil" model="boq.activity">
+        <field name="name">Civil Works</field>
+        <field name="boq_id" ref="demo_boq_project_1"/>
+        <field name="sequence">10</field>
+        <field name="margin_percent">10.0</field>
+    </record>
+
+    <record id="demo_activity_mechanical" model="boq.activity">
+        <field name="name">Mechanical Works</field>
+        <field name="boq_id" ref="demo_boq_project_1"/>
+        <field name="sequence">20</field>
+        <field name="margin_percent">10.0</field>
+    </record>
+
+    <!-- Demo Sub-activities -->
+    <record id="demo_sub_concrete" model="boq.subactivity">
+        <field name="activity_id" ref="demo_activity_civil"/>
+        <field name="product_id" ref="product.product_product_25"/>
+        <field name="description">Concrete foundation work</field>
+        <field name="activity_type">material</field>
+        <field name="master_qty">100</field>
+        <field name="current_qty">30</field>
+        <field name="previous_qty">0</field>
+        <field name="product_cost">50.0</field>
+        <field name="margin_percent">10.0</field>
+        <field name="sequence">10</field>
+    </record>
+
+    <record id="demo_sub_steel" model="boq.subactivity">
+        <field name="activity_id" ref="demo_activity_civil"/>
+        <field name="product_id" ref="product.product_product_27"/>
+        <field name="description">Steel reinforcement</field>
+        <field name="activity_type">material</field>
+        <field name="master_qty">200</field>
+        <field name="current_qty">70</field>
+        <field name="previous_qty">0</field>
+        <field name="product_cost">75.0</field>
+        <field name="margin_percent">10.0</field>
+        <field name="sequence">20</field>
+    </record>
+
+    <record id="demo_sub_pipes" model="boq.subactivity">
+        <field name="activity_id" ref="demo_activity_mechanical"/>
+        <field name="product_id" ref="product.product_product_6"/>
+        <field name="description">4 inch PVC pipes</field>
+        <field name="activity_type">material</field>
+        <field name="master_qty">300</field>
+        <field name="current_qty">100</field>
+        <field name="previous_qty">0</field>
+        <field name="product_cost">25.0</field>
+        <field name="margin_percent">10.0</field>
+        <field name="sequence">10</field>
+    </record>
+
+    <!-- Demo Additional Costs -->
+    <record id="demo_additional_cost_delivery" model="boq.subactivity.cost">
+        <field name="subactivity_id" ref="demo_sub_concrete"/>
+        <field name="name">Delivery</field>
+        <field name="cost">5.0</field>
+        <field name="description">Transportation to site</field>
+    </record>
+
+    <record id="demo_additional_cost_overhead" model="boq.subactivity.cost">
+        <field name="subactivity_id" ref="demo_sub_steel"/>
+        <field name="name">Overhead</field>
+        <field name="cost">10.0</field>
+        <field name="description">General overhead</field>
+    </record>
+</odoo>
